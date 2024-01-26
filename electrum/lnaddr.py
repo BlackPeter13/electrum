@@ -11,7 +11,7 @@ from typing import Optional, TYPE_CHECKING, Type, Dict, Any
 import random
 import bitstring
 
-from .bitcoin import hash160_to_b58_address, b58_address_to_hash160, TOTAL_COIN_SUPPLY_LIMIT_IN_BTC
+from .bitcoin import hash160_to_b58_address, b58_address_to_hash160, TOTAL_COIN_SUPPLY_LIMIT_IN_BCA
 from .segwit_addr import bech32_encode, bech32_decode, CHARSET
 from . import segwit_addr
 from . import constants
@@ -286,8 +286,8 @@ class LnAddr(object):
             self._amount = None
             return
         assert isinstance(value, Decimal)
-        if value.is_nan() or not (0 <= value <= TOTAL_COIN_SUPPLY_LIMIT_IN_BTC):
-            raise LnInvoiceException(f"amount is out-of-bounds: {value!r} BTC")
+        if value.is_nan() or not (0 <= value <= TOTAL_COIN_SUPPLY_LIMIT_IN_BCA):
+            raise LnInvoiceException(f"amount is out-of-bounds: {value!r} BCA")
         if value * 10**12 % 10:
             # max resolution is millisatoshi
             raise LnInvoiceException(f"Cannot encode {value!r}: too many decimal places")
@@ -369,7 +369,7 @@ class LnAddr(object):
     def to_debug_json(self) -> Dict[str, Any]:
         d = {
             'pubkey': self.pubkey.serialize().hex(),
-            'amount_BTC': str(self.amount),
+            'amount_BCA': str(self.amount),
             'rhash': self.paymenthash.hex(),
             'payment_secret': self.payment_secret.hex() if self.payment_secret else None,
             'description': self.get_description(),

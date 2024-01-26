@@ -11,7 +11,7 @@ from .bip21 import create_bip21_uri
 from .lnutil import hex_to_bytes
 from .lnaddr import lndecode, LnAddr
 from . import constants
-from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_BTC
+from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_BCA
 from .bitcoin import address_to_script
 from .transaction import PartialTxOutput
 from .crypto import sha256d
@@ -196,7 +196,7 @@ class BaseInvoice(StoredObject):
         if value is None:
             return
         if isinstance(value, int):
-            if not (0 <= value <= TOTAL_COIN_SUPPLY_LIMIT_IN_BTC * COIN * 1000):
+            if not (0 <= value <= TOTAL_COIN_SUPPLY_LIMIT_IN_BCA * COIN * 1000):
                 raise InvoiceError(f"amount is out-of-bounds: {value!r} msat")
         elif isinstance(value, str):
             if value != '!':
@@ -250,7 +250,7 @@ class BaseInvoice(StoredObject):
     def as_dict(self, status):
         d = {
             'is_lightning': self.is_lightning(),
-            'amount_BTC': format_satoshis(self.get_amount_sat()),
+            'amount_BCA': format_satoshis(self.get_amount_sat()),
             'message': self.message,
             'timestamp': self.get_time(),
             'expiry': self.exp,
@@ -320,7 +320,7 @@ class Request(BaseInvoice):
     payment_hash = attr.ib(type=bytes, kw_only=True, converter=hex_to_bytes)  # type: Optional[bytes]
 
     def is_lightning(self):
-        return self.payment_hash is not None
+        return False # self.payment_hash is not None
 
     def get_address(self) -> Optional[str]:
         address = None

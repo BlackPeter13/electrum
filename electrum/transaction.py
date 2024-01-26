@@ -45,7 +45,7 @@ from .bip32 import BIP32Node
 from .util import profiler, to_bytes, bfh, chunks, is_hex_str, parse_max_spend
 from .bitcoin import (TYPE_ADDRESS, TYPE_SCRIPT, hash_160,
                       hash160_to_p2sh, hash160_to_p2pkh, hash_to_segwit_addr,
-                      var_int, TOTAL_COIN_SUPPLY_LIMIT_IN_BTC, COIN,
+                      var_int, TOTAL_COIN_SUPPLY_LIMIT_IN_BCA, COIN,
                       int_to_hex, push_script, b58_address_to_hash160,
                       opcodes, add_number_to_script, base_decode,
                       base_encode, construct_witness, construct_script)
@@ -707,7 +707,7 @@ def parse_witness(vds: BCDataStream, txin: TxInput) -> None:
 
 def parse_output(vds: BCDataStream) -> TxOutput:
     value = vds.read_int64()
-    if value > TOTAL_COIN_SUPPLY_LIMIT_IN_BTC * COIN:
+    if value > TOTAL_COIN_SUPPLY_LIMIT_IN_BCA * COIN:
         raise SerializationError('invalid output amount (too large)')
     if value < 0:
         raise SerializationError('invalid output amount (negative)')
@@ -2059,6 +2059,22 @@ class PartialTransaction(Transaction):
             self._outputs.sort(key = lambda o: (o.value, o.scriptpubkey))
         self.invalidate_ser_cache()
 
+    @classmethod
+    def is_bip143_input(cls, txin):
+        return True
+
+    @classmethod
+    def get_sighash(cls):
+        return bitcoin.SIGHASH_ALL | bitcoin.SIGHASH_FORKID
+
+    @classmethod
+    def get_forkid(cls):
+        return 93
+
+    @classmethod
+    def get_hash_type(cls):
+        return cls.get_sighash() | (cls.get_forkid() << 8)
+
     def serialize_preimage(self, txin_index: int, *,
                            bip143_shared_txdigest_fields: BIP143SharedTxDigestFields = None) -> str:
         nVersion = int_to_hex(self.version, 4)
@@ -2066,28 +2082,14 @@ class PartialTransaction(Transaction):
         inputs = self.inputs()
         outputs = self.outputs()
         txin = inputs[txin_index]
-        sighash = txin.sighash if txin.sighash is not None else Sighash.ALL
-        if not Sighash.is_valid(sighash):
-            raise Exception(f"SIGHASH_FLAG ({sighash}) not supported!")
-        nHashType = int_to_hex(sighash, 4)
+        nHashType = int_to_hex(self.get_hash_type(), 4)
         preimage_script = self.get_preimage_script(txin)
-        if txin.is_segwit():
+        if self.is_bip143_input(txin):
             if bip143_shared_txdigest_fields is None:
                 bip143_shared_txdigest_fields = self._calc_bip143_shared_txdigest_fields()
-            if not (sighash & Sighash.ANYONECANPAY):
-                hashPrevouts = bip143_shared_txdigest_fields.hashPrevouts
-            else:
-                hashPrevouts = '00' * 32
-            if not (sighash & Sighash.ANYONECANPAY) and (sighash & 0x1f) != Sighash.SINGLE and (sighash & 0x1f) != Sighash.NONE:
-                hashSequence = bip143_shared_txdigest_fields.hashSequence
-            else:
-                hashSequence = '00' * 32
-            if (sighash & 0x1f) != Sighash.SINGLE and (sighash & 0x1f) != Sighash.NONE:
-                hashOutputs = bip143_shared_txdigest_fields.hashOutputs
-            elif (sighash & 0x1f) == Sighash.SINGLE and txin_index < len(outputs):
-                hashOutputs = sha256d(outputs[txin_index].serialize_to_network()).hex()
-            else:
-                hashOutputs = '00' * 32
+            hashPrevouts = bip143_shared_txdigest_fields.hashPrevouts
+            hashSequence = bip143_shared_txdigest_fields.hashSequence
+            hashOutputs = bip143_shared_txdigest_fields.hashOutputs
             outpoint = txin.prevout.serialize_to_network().hex()
             scriptCode = var_int(len(preimage_script) // 2) + preimage_script
             amount = int_to_hex(txin.value_sats(), 8)
@@ -2123,12 +2125,11 @@ class PartialTransaction(Transaction):
     def sign_txin(self, txin_index, privkey_bytes, *, bip143_shared_txdigest_fields=None) -> str:
         txin = self.inputs()[txin_index]
         txin.validate_data(for_signing=True)
-        sighash = txin.sighash if txin.sighash is not None else Sighash.ALL
         pre_hash = sha256d(bfh(self.serialize_preimage(txin_index,
                                                        bip143_shared_txdigest_fields=bip143_shared_txdigest_fields)))
         privkey = ecc.ECPrivkey(privkey_bytes)
         sig = privkey.sign_transaction(pre_hash)
-        sig = sig.hex() + Sighash.to_sigbytes(sighash).hex()
+        sig = sig.hex() + int_to_hex(self.get_sighash(), 1)
         return sig
 
     def is_complete(self) -> bool:

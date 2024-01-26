@@ -15,7 +15,7 @@ Pane {
 
     padding: 0
 
-    property var _baseunits: ['BTC','mBTC','bits','sat']
+    property var _baseunits: ['BCA','mBCA','bits','sat']
 
     ColumnLayout {
         anchors.fill: parent
@@ -89,7 +89,7 @@ Pane {
                         }
                         Label {
                             Layout.fillWidth: true
-                            text: qsTr('Add thousands separators to bitcoin amounts')
+                            text: qsTr('Add thousands separators to bitcoin atom amounts')
                             wrapMode: Text.Wrap
                         }
                     }

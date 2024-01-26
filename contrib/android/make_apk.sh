@@ -40,7 +40,7 @@ info "apk building phase starts."
 # Uncomment and change below to set a custom android package id,
 # e.g. to allow simultaneous mainnet and testnet installs of the apk.
 # defaults:
-#   export APP_PACKAGE_NAME=Electrum
+export APP_PACKAGE_NAME=Electrum Atom
 #   export APP_PACKAGE_DOMAIN=org.electrum
 # FIXME: changing "APP_PACKAGE_NAME" seems to require a clean rebuild of ".buildozer/",
 #        to avoid that, maybe change "APP_PACKAGE_DOMAIN" instead.

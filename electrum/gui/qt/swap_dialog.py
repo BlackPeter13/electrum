@@ -13,7 +13,7 @@ from . import util
 from .util import (WindowModalDialog, Buttons, OkButton, CancelButton,
                    EnterButton, ColorScheme, WWLabel, read_QIcon, IconLabel, char_width_in_lineedit)
 from .util import qt_event_listener, QtEventListener
-from .amountedit import BTCAmountEdit
+from .amountedit import BCAAmountEdit
 from .fee_slider import FeeSlider, FeeComboBox
 from .my_treeview import create_toolbar_with_menu
 
@@ -49,8 +49,8 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         ).setEnabled(self.lnworker.can_have_recoverable_channels())
         vbox.addLayout(toolbar)
         self.description_label = WWLabel(self.get_description())
-        self.send_amount_e = BTCAmountEdit(self.window.get_decimal_point)
-        self.recv_amount_e = BTCAmountEdit(self.window.get_decimal_point)
+        self.send_amount_e = BCAAmountEdit(self.window.get_decimal_point)
+        self.recv_amount_e = BCAAmountEdit(self.window.get_decimal_point)
         self.max_button = EnterButton(_("Max"), self.spend_max)
         btn_width = 10 * char_width_in_lineedit()
         self.max_button.setFixedWidth(btn_width)

@@ -100,7 +100,7 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         outer_vbox.addLayout(Buttons(self.back_button, self.next_button))
 
         self.icon_filename = None
-        self.set_icon('electrum.png')
+        self.set_icon('electrum-atom.png')
 
         self.start_viewstate = start_viewstate
 
@@ -177,7 +177,7 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         self.please_wait_l.setText(page.busy_msg if page.busy_msg else _("Please wait..."))
         self.error_msg.setText(str(page.error))
         self.error.setVisible(not page.busy and bool(page.error))
-        icon = page.params.get('icon', icon_path('electrum.png'))
+        icon = page.params.get('icon', icon_path('electrum-atom.png'))
         if icon != self.icon_filename:
             self.set_icon(icon)
 

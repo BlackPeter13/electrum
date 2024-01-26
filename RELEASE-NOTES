@@ -18,7 +18,7 @@
    - fix: we would sometimes attempt sending MPP even if not supported
      by the invoice (2cf6173c)
  * QML GUI:
-   - fix lnurl-pay when config.BTC_AMOUNTS_ADD_THOUSANDS_SEP is True
+   - fix lnurl-pay when config.BCA_AMOUNTS_ADD_THOUSANDS_SEP is True
      (5b4df759)
  * Hardware wallets:
    - Trezor: support longer than 9 character PIN codes (#8526)
@@ -402,7 +402,7 @@
      - consider inflight HTLCs and try to route around them (#7292)
    - bugfix: add more safety checks to avoid "batch RBF" feature
      merging LN funding txs (#7298)
-   - remove HTLC value upper limit of ~42 mBTC (#7328)
+   - remove HTLC value upper limit of ~42 mBCA (#7328)
    - Kivy GUI: implement freezing LN channels (11bb39ee)
  * imported wallets: when enabling the "Use change addresses" option,
    change will now be sent to a random unused imported address. (#7330)
@@ -899,7 +899,7 @@ below are user-visible.
  * fix Linux distributables: 'typing' was not bundled, needed for python 3.4
  * fix #4626: fix spending from segwit multisig wallets involving a Trezor
    cosigner when using a custom derivation path
- * fix #4491: on Android, if user had set "uBTC" as base unit, app crashed
+ * fix #4491: on Android, if user had set "uBCA" as base unit, app crashed
  * fix #4497: on Android, paying bip70 invoices from cold start did not work
  * Several other minor bugfixes and usability improvements.
 
@@ -1689,7 +1689,7 @@ issue #3374. Users should upgrade to 3.0.5.
    - Verification of the chain of signatures uses tlslite.
    - In the GUI, payment requests are shown in the 'Invoices' tab.
 
- * Support for hardware wallets: TREZOR (SatoshiLabs) and Btchip (Ledger).
+ * Support for hardware wallets: TREZOR (SatoshiLabs) and BCAhip (Ledger).
 
  * Two-factor authentication service by TrustedCoin. This service uses
    "2 of 3" multisig wallets and Google Authenticator. Note that
@@ -1765,7 +1765,7 @@ issue #3374. Users should upgrade to 3.0.5.
 
 # Release 1.9.6
 * During wallet creation, do not write seed to disk until it is encrypted.
-* Confirmation dialog if the transaction fee is higher than 1mBTC.
+* Confirmation dialog if the transaction fee is higher than 1mBCA.
 * bugfixes
 
 # Release 1.9.5
@@ -1827,7 +1827,7 @@ bugfixes: connection problems, transactions staying unverified
 
 # Release 1.7.3:
 
-* Classic GUI can display amounts in mBTC
+* Classic GUI can display amounts in mBCA
 * Account selector in the classic GUI
 * Changed the way the portable flag uses without supplying a -w argument
 * Classic GUI asks users to enter their seed on wallet creation
@@ -1837,7 +1837,7 @@ bugfixes: connection problems, transactions staying unverified
 
 * Transactions that are in the same block are displayed in chronological order in the history.
 * The client computes transaction priority and rejects zero-fee transactions that need a fee.
-* The default fee was lowered to 200 uBTC per kb.
+* The default fee was lowered to 200 uBCA per kb.
 * Due to an internal format change, your history may be pruned when
   you open your wallet for the first time after upgrading to 1.7.2. If
   this is the case, please visit a full server to restore your full

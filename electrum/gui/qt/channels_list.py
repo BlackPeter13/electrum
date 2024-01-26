@@ -21,7 +21,7 @@ from electrum.gui import messages
 
 from .util import (WindowModalDialog, Buttons, OkButton, CancelButton,
                    EnterButton, WaitingDialog, MONOSPACE_FONT, ColorScheme)
-from .amountedit import BTCAmountEdit, FreezableLineEdit
+from .amountedit import BCAAmountEdit, FreezableLineEdit
 from .util import read_QIcon, font_height
 from .my_treeview import MyTreeView
 

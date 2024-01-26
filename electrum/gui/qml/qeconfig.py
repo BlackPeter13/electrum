@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, QObject, QRegularExpression
 
-from electrum.bitcoin import TOTAL_COIN_SUPPLY_LIMIT_IN_BTC
+from electrum.bitcoin import TOTAL_COIN_SUPPLY_LIMIT_IN_BCA
 from electrum.i18n import set_language, languages
 from electrum.logging import get_logger
 from electrum.util import base_unit_name_to_decimal_point
@@ -76,8 +76,8 @@ class QEConfig(AuthMixin, QObject):
     def btcAmountRegex(self):
         decimal_point = base_unit_name_to_decimal_point(self.config.get_base_unit())
         max_digits_before_dp = (
-            len(str(TOTAL_COIN_SUPPLY_LIMIT_IN_BTC))
-            + (base_unit_name_to_decimal_point("BTC") - decimal_point))
+            len(str(TOTAL_COIN_SUPPLY_LIMIT_IN_BCA))
+            + (base_unit_name_to_decimal_point("BCA") - decimal_point))
         exp = '[0-9]{0,%d}' % max_digits_before_dp
         if decimal_point > 0:
             exp += '\\.'
@@ -87,11 +87,11 @@ class QEConfig(AuthMixin, QObject):
     thousandsSeparatorChanged = pyqtSignal()
     @pyqtProperty(bool, notify=thousandsSeparatorChanged)
     def thousandsSeparator(self):
-        return self.config.BTC_AMOUNTS_ADD_THOUSANDS_SEP
+        return self.config.BCA_AMOUNTS_ADD_THOUSANDS_SEP
 
     @thousandsSeparator.setter
     def thousandsSeparator(self, checked):
-        self.config.BTC_AMOUNTS_ADD_THOUSANDS_SEP = checked
+        self.config.BCA_AMOUNTS_ADD_THOUSANDS_SEP = checked
         self.config.amt_add_thousands_sep = checked
         self.thousandsSeparatorChanged.emit()
 
@@ -249,7 +249,7 @@ class QEConfig(AuthMixin, QObject):
 
     # TODO delegate all this to config.py/util.py
     def decimal_point(self):
-        return self.config.BTC_AMOUNTS_DECIMAL_POINT
+        return self.config.BCA_AMOUNTS_DECIMAL_POINT
 
     def max_precision(self):
         return self.decimal_point() + 0  # self.extra_precision

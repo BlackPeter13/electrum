@@ -58,7 +58,7 @@ class SwapServer(Logger, EventListener):
             "warnings": [],
             "htlcFirst": True,
             "pairs": {
-                "BTC/BTC": {
+                "BCA/BCA": {
                     "rate": 1,
                     "limits": {
                         "maximal": sm._max_amount,
@@ -124,7 +124,7 @@ class SwapServer(Logger, EventListener):
         self.sm.init_pairs()
         request = await r.json()
         req_type = request['type']
-        assert request['pairId'] == 'BTC/BTC'
+        assert request['pairId'] == 'BCA/BCA'
         if req_type == 'reversesubmarine':
             lightning_amount_sat=request['invoiceAmount']
             payment_hash=bytes.fromhex(request['preimageHash'])

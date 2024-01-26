@@ -778,8 +778,8 @@ class WalletDBUpgrader(Logger):
             return
         PR_TYPE_ONCHAIN = 0
         PR_TYPE_LN = 2
-        from .bitcoin import TOTAL_COIN_SUPPLY_LIMIT_IN_BTC, COIN
-        max_sats = TOTAL_COIN_SUPPLY_LIMIT_IN_BTC * COIN
+        from .bitcoin import TOTAL_COIN_SUPPLY_LIMIT_IN_BCA, COIN
+        max_sats = TOTAL_COIN_SUPPLY_LIMIT_IN_BCA * COIN
         requests = self.data.get('payment_requests', {})
         invoices = self.data.get('invoices', {})
         for d in [invoices, requests]:
@@ -1054,8 +1054,8 @@ class WalletDBUpgrader(Logger):
         # note: similar to convert_version_38
         if not self._is_upgrade_method_needed(53, 53):
             return
-        from .bitcoin import TOTAL_COIN_SUPPLY_LIMIT_IN_BTC, COIN
-        max_sats = TOTAL_COIN_SUPPLY_LIMIT_IN_BTC * COIN
+        from .bitcoin import TOTAL_COIN_SUPPLY_LIMIT_IN_BCA, COIN
+        max_sats = TOTAL_COIN_SUPPLY_LIMIT_IN_BCA * COIN
         requests = self.data.get('payment_requests', {})
         invoices = self.data.get('invoices', {})
         for d in [invoices, requests]:

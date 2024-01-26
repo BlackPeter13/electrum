@@ -5,11 +5,11 @@ from typing import Optional
 
 from . import bitcoin
 from .util import format_satoshis_plain
-from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_BTC
+from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_BCA
 from .lnaddr import lndecode, LnDecodeException
 
 # note: when checking against these, use .lower() to support case-insensitivity
-BITCOIN_BIP21_URI_SCHEME = 'bitcoin'
+BITCOIN_BIP21_URI_SCHEME = 'bitcoinatom'
 LIGHTNING_URI_SCHEME = 'lightning'
 
 
@@ -58,8 +58,8 @@ def parse_bip21_URI(uri: str) -> dict:
                 amount = Decimal(m.group(1)) * pow(Decimal(10), k)
             else:
                 amount = Decimal(am) * COIN
-            if amount > TOTAL_COIN_SUPPLY_LIMIT_IN_BTC * COIN:
-                raise InvalidBitcoinURI(f"amount is out-of-bounds: {amount!r} BTC")
+            if amount > TOTAL_COIN_SUPPLY_LIMIT_IN_BCA * COIN:
+                raise InvalidBitcoinURI(f"amount is out-of-bounds: {amount!r} BCA")
             out['amount'] = int(amount)
         except Exception as e:
             raise InvalidBitcoinURI(f"failed to parse 'amount' field: {repr(e)}") from e

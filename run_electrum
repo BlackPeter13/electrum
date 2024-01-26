@@ -381,12 +381,6 @@ def main():
 
     if config.get('testnet'):
         constants.set_testnet()
-    elif config.get('regtest'):
-        constants.set_regtest()
-    elif config.get('simnet'):
-        constants.set_simnet()
-    elif config.get('signet'):
-        constants.set_signet()
 
     # check if we received a valid payment identifier
     uri = config_options.get('url')

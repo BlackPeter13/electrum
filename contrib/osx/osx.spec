@@ -7,7 +7,7 @@ import sys, os
 PACKAGE='Electrum'
 PYPKG='electrum'
 MAIN_SCRIPT='run_electrum'
-ICONS_FILE=PYPKG + '/gui/icons/electrum.icns'
+ICONS_FILE=PYPKG + '/gui/icons/electrum-atom.icns'
 
 
 VERSION = os.environ.get("ELECTRUM_VERSION")
@@ -129,6 +129,6 @@ app = BUNDLE(
                 'CFBundleURLSchemes': ['bitcoin', 'lightning', ],
             }],
         'LSMinimumSystemVersion': '10.13.0',
-        'NSCameraUsageDescription': 'Electrum would like to access the camera to scan for QR codes',
+        'NSCameraUsageDescription': 'Electrum Atom would like to access the camera to scan for QR codes',
     },
 )

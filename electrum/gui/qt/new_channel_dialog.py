@@ -14,7 +14,7 @@ from . import util
 from .util import (WindowModalDialog, Buttons, OkButton, CancelButton,
                    EnterButton, ColorScheme, WWLabel, read_QIcon, IconLabel,
                    char_width_in_lineedit)
-from .amountedit import BTCAmountEdit
+from .amountedit import BCAAmountEdit
 from .my_treeview import create_toolbar_with_menu
 
 if TYPE_CHECKING:
@@ -52,7 +52,7 @@ class NewChannelDialog(WindowModalDialog):
             self.trampoline_combo = QComboBox()
             self.trampoline_combo.addItems(self.trampoline_names)
             self.trampoline_combo.setCurrentIndex(1)
-        self.amount_e = BTCAmountEdit(self.window.get_decimal_point)
+        self.amount_e = BCAAmountEdit(self.window.get_decimal_point)
         self.amount_e.setAmount(amount_sat)
 
         btn_width = 10 * char_width_in_lineedit()

@@ -46,7 +46,7 @@ WizardComponent {
     function setSeedTypeHelpText() {
         var t = {
             'electrum': [
-                qsTr('Electrum seeds are the default seed type.'),
+                qsTr('Electrum Atom seeds are the default seed type.'),
                 qsTr('If you are restoring from a seed previously created by Electrum, choose this option')
             ].join(' '),
             'bip39': [

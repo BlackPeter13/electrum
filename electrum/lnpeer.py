@@ -1987,16 +1987,15 @@ class Peer(Logger):
             return
         feerate_per_kw = self.lnworker.current_feerate_per_kw()
         if not chan.constraints.is_initiator:
-            if constants.net is not constants.BitcoinRegtest:
-                chan_feerate = chan.get_latest_feerate(LOCAL)
-                ratio = chan_feerate / feerate_per_kw
-                if ratio < 0.5:
-                    # Note that we trust the Electrum server about fee rates
-                    # Thus, automated force-closing might not be a good idea
-                    # Maybe we should display something in the GUI instead
-                    self.logger.warning(
-                        f"({chan.get_id_for_log()}) feerate is {chan_feerate} sat/kw, "
-                        f"current recommended feerate is {feerate_per_kw} sat/kw, consider force closing!")
+            chan_feerate = chan.get_latest_feerate(LOCAL)
+            ratio = chan_feerate / feerate_per_kw
+            if ratio < 0.5:
+                # Note that we trust the Electrum server about fee rates
+                # Thus, automated force-closing might not be a good idea
+                # Maybe we should display something in the GUI instead
+                self.logger.warning(
+                    f"({chan.get_id_for_log()}) feerate is {chan_feerate} sat/kw, "
+                    f"current recommended feerate is {feerate_per_kw} sat/kw, consider force closing!")
             return
         chan_fee = chan.get_next_feerate(REMOTE)
         if feerate_per_kw < chan_fee / 2:

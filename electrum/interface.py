@@ -406,6 +406,10 @@ class Interface(Logger):
 
         self.taskgroup = OldTaskGroup()
 
+        self.headers_cache = {}
+        self.headers_cache_min = 0
+        self.headers_cache_max = 0
+
         async def spawn_task():
             task = await self.network.taskgroup.spawn(self.run())
             task.set_name(f"interface::{str(server)}")
@@ -637,7 +641,9 @@ class Interface(Logger):
             size = max(size, 0)
         try:
             self._requested_chunks.add(index)
-            res = await self.session.send_request('blockchain.block.headers', [index * 2016, size])
+            start_height = index * 2016
+            count  = size
+            res = await self.session.send_request('blockchain.block.headers', [start_height, count])
         finally:
             self._requested_chunks.discard(index)
         assert_dict_contains_field(res, field_name='count')
@@ -653,10 +659,28 @@ class Interface(Logger):
             raise RequestCorrupted(f"server uses too low 'max' count for block.headers: {res['max']} < 2016")
         if res['count'] != size:
             raise RequestCorrupted(f"expected {size} headers but only got {res['count']}")
-        conn = self.blockchain.connect_chunk(index, res['hex'])
+        conn = self.blockchain.connect_chunk(index, res['hex'], self.headers_cache)
         if not conn:
             return conn, 0
         return conn, res['count']
+
+    async def request_headers(self, start_height: int, stop_height: int):
+        for i in range(start_height, stop_height + 1, 2016):
+            headers = await self.session.send_request('blockchain.block.headers', [i, 2016])
+            assert_dict_contains_field(headers, field_name='count')
+            assert_dict_contains_field(headers, field_name='hex')
+            assert_dict_contains_field(headers, field_name='max')
+            assert_non_negative_integer(headers['count'])
+            assert_non_negative_integer(headers['max'])
+            assert_hex_str(headers['hex'])
+            if len(headers['hex']) != HEADER_SIZE * 2 * headers['count']:
+                raise RequestCorrupted('inconsistent chunk hex and count')
+            height = i
+            headers_data = bytes.fromhex(headers['hex'])
+            for j in range(0, headers['count'] * HEADER_SIZE, HEADER_SIZE):
+                header = blockchain.deserialize_header(headers_data[j:j+HEADER_SIZE], height)
+                self.headers_cache[height] = header
+                height += 1
 
     def is_main_server(self) -> bool:
         return (self.network.interface == self or
@@ -755,6 +779,10 @@ class Interface(Logger):
             header = blockchain.deserialize_header(bfh(raw_header['hex']), height)
             self.tip_header = header
             self.tip = height
+            # if height > self.headers_cache_max:
+            #     self.headers_cache_min = max(self.headers_cache_max, constants.net.max_checkpoint() - 2016)
+            #     self.headers_cache_max = height
+            #     await self.request_headers(self.headers_cache_min, self.headers_cache_max)
             if self.tip < constants.net.max_checkpoint():
                 raise GracefulDisconnect('server tip below max checkpoint')
             self._mark_ready()
@@ -819,12 +847,12 @@ class Interface(Logger):
             # this situation resolves itself on the next block
             return 'catchup', height+1
 
-        can_connect = blockchain.can_connect(header) if 'mock' not in header else header['mock']['connect'](height)
+        can_connect = blockchain.can_connect(header, self.headers_cache) if 'mock' not in header else header['mock']['connect'](height)
         if not can_connect:
             self.logger.info(f"can't connect {height}")
             height, header, bad, bad_header = await self._search_headers_backwards(height, header)
             chain = blockchain.check_header(header) if 'mock' not in header else header['mock']['check'](header)
-            can_connect = blockchain.can_connect(header) if 'mock' not in header else header['mock']['connect'](height)
+            can_connect = blockchain.can_connect(header, self.headers_cache) if 'mock' not in header else header['mock']['connect'](height)
             assert chain or can_connect
         if can_connect:
             self.logger.info(f"could connect {height}")
@@ -859,7 +887,7 @@ class Interface(Logger):
                 break
 
         mock = 'mock' in bad_header and bad_header['mock']['connect'](height)
-        real = not mock and self.blockchain.can_connect(bad_header, check_height=False)
+        real = not mock and self.blockchain.can_connect(bad_header, check_height=False, headers_cache=self.headers_cache)
         if not real and not mock:
             raise Exception('unexpected bad header during binary: {}'.format(bad_header))
         _assert_header_does_not_check_against_any_chain(bad_header)
@@ -885,7 +913,7 @@ class Interface(Logger):
         height = bad + 1
         self.logger.info(f"new fork at bad height {bad}")
         forkfun = self.blockchain.fork if 'mock' not in bad_header else bad_header['mock']['fork']
-        b = forkfun(bad_header)  # type: Blockchain
+        b = forkfun(bad_header, self.headers_cache)  # type: Blockchain
         self.blockchain = b
         assert b.forkpoint == bad
         return 'fork', height
@@ -899,7 +927,7 @@ class Interface(Logger):
                 checkp = True
             header = await self.get_block_header(height, 'backward')
             chain = blockchain.check_header(header) if 'mock' not in header else header['mock']['check'](header)
-            can_connect = blockchain.can_connect(header) if 'mock' not in header else header['mock']['connect'](height)
+            can_connect = blockchain.can_connect(header, self.headers_cache) if 'mock' not in header else header['mock']['connect'](height)
             if chain or can_connect:
                 return False
             if checkp:

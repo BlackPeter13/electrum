@@ -86,7 +86,7 @@ class Plugin(PayServerPlugin):
             self.config.SSL_KEYFILE_PATH = str(keyfile_e.text())
             self.config.SSL_CERTFILE_PATH = str(certfile_e.text())
             # fixme: restart the server
-            window.show_message('Please restart Electrum to enable those changes')
+            window.show_message('Please restart Electrum Atom to enable those changes')
 
     @hook
     def receive_list_menu(self, parent, menu, key):
