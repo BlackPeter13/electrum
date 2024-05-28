@@ -51,7 +51,7 @@ Due to the need for fast symmetric ciphers,
 [cryptography](https://github.com/pyca/cryptography) is required.
 Install from your package manager (or from pip):
 ```
-$ sudo apt-get install python3-cryptography
+$ sudo apt-get install python3-cryptography python3-matploitlib
 ```
 
 If you would like hardware wallet support,
